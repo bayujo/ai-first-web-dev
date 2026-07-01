@@ -4,162 +4,267 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>AI-First Web Development - Workflow Walkthrough</title>
-<meta name="description" content="How I combine strong HTML/CSS/JS with an AI-first workflow to analyse, modify, test and ship websites fast - without trading away quality." />
+<meta name="description" content="I combine strong HTML/CSS/JS with an AI-first workflow to analyse, modify, test and ship websites fast, without trading away quality." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* ---- Anthropic / Claude warm-editorial design tokens ---- */
   :root {
-    --bg: #0b1220;
-    --panel: #0f1a2e;
-    --ink: #0f172a;
-    --line: #e2e8f0;
-    --soft: #475569;
-    --accent: #14b8a6;   /* teal - technical, not the default purple */
-    --accent-2: #22d3ee; /* cyan */
-    --ok: #10b981;
+    --primary: #cc785c;            /* coral */
+    --primary-active: #a9583e;
+    --ink: #141413;
+    --body: #3d3d3a;
+    --body-strong: #252523;
+    --muted: #6c6a64;
+    --muted-soft: #8e8b82;
+    --hairline: #e6dfd8;
+    --hairline-soft: #ebe6df;
+    --canvas: #faf9f5;
+    --surface-soft: #f5f0e8;
+    --surface-card: #efe9de;
+    --surface-cream-strong: #e8e0d2;
+    --dark: #181715;
+    --dark-elevated: #252320;
+    --dark-soft: #1f1e1b;
+    --on-primary: #ffffff;
+    --on-dark: #faf9f5;
+    --on-dark-soft: #a09d96;
+    --teal: #5db8a6;
+    --amber: #e8a55a;
+    --success: #5db872;
+
+    --serif: "Cormorant Garamond", "Tiempos Headline", Garamond, "Times New Roman", serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+    --r-sm: 6px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-pill: 9999px;
+    --section: 96px;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--ink);
-    line-height: 1.6;
-    background: #fff;
-    -webkit-font-smoothing: antialiased;
+    font-family: var(--sans);
+    color: var(--body);
+    background: var(--canvas);
+    font-size: 16px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
   }
   a { color: inherit; }
-  .wrap { width: min(1080px, 92vw); margin: 0 auto; }
+  .wrap { width: min(1120px, 92vw); margin: 0 auto; }
 
-  /* ---------- Header ---------- */
-  header {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(11,18,32,.85);
-    backdrop-filter: saturate(140%) blur(8px);
-    border-bottom: 1px solid rgba(255,255,255,.08);
-  }
-  .nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; color: #e2e8f0; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; }
-  .brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(20,184,166,.18); }
-  .nav-links { display: flex; gap: 22px; font-size: 14px; }
-  .nav-links a { color: #cbd5e1; text-decoration: none; }
-  .nav-links a:hover { color: #fff; }
+  /* serif display sizes (weight 500, negative tracking - the brand voice) */
+  h1, h2, h3 { font-family: var(--serif); font-weight: 500; color: var(--ink); margin: 0; }
+  .d-xl { font-size: clamp(38px, 6.4vw, 64px); line-height: 1.05; letter-spacing: -1.5px; }
+  .d-lg { font-size: clamp(32px, 4.8vw, 48px); line-height: 1.1;  letter-spacing: -1px; }
+  .d-md { font-size: clamp(28px, 3.8vw, 36px); line-height: 1.15; letter-spacing: -.5px; }
+  .d-sm { font-size: clamp(24px, 3vw, 28px);   line-height: 1.2;  letter-spacing: -.3px; }
+  p { margin: 0 0 12px; }
 
-  /* ---------- Hero ---------- */
-  .hero {
-    background:
-      radial-gradient(1200px 500px at 80% -10%, rgba(34,211,238,.16), transparent 60%),
-      linear-gradient(160deg, #0b1220 0%, #0f1a2e 55%, #10233a 100%);
-    color: #e6edf6;
-    padding: 74px 0 84px;
-  }
-  .eyebrow {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
-    color: var(--accent-2); border: 1px solid rgba(34,211,238,.35);
-    padding: 6px 12px; border-radius: 999px; margin-bottom: 22px;
-  }
-  .hero h1 { font-size: clamp(28px, 5.2vw, 48px); line-height: 1.1; margin: 0 0 16px; font-weight: 800; letter-spacing: -.02em; }
-  .hero h1 .grad { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hero p.lead { font-size: clamp(15px, 2.2vw, 19px); color: #b9c6d8; max-width: 62ch; margin: 0 0 30px; }
-  .stats { display: flex; flex-wrap: wrap; gap: 14px; }
-  .stat { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 12px; padding: 14px 18px; min-width: 150px; }
-  .stat b { display: block; font-size: 24px; color: #fff; letter-spacing: -.01em; }
-  .stat span { font-size: 12.5px; color: #93a4bb; }
+  .kicker { font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+  .lead { color: var(--body-strong); font-size: 18px; line-height: 1.45; max-width: 62ch; }
+  .intro { color: var(--body); font-size: 17px; max-width: 68ch; margin: 0 0 40px; }
 
-  /* ---------- Sections ---------- */
-  section.block { padding: 64px 0; }
-  section.block.alt { background: #f8fafc; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .kicker { color: var(--accent); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; margin: 0 0 8px; }
-  h2.title { font-size: clamp(22px, 3.6vw, 32px); margin: 0 0 10px; letter-spacing: -.01em; }
-  .rule { height: 4px; width: 60px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 2px; margin: 0 0 26px; }
-  .intro { color: var(--soft); font-size: clamp(15px, 2vw, 17px); max-width: 70ch; margin: 0 0 30px; }
+  /* ---- buttons ---- */
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--sans);
+    font-size: 14px; font-weight: 500; line-height: 1; height: 40px; padding: 0 20px;
+    border-radius: var(--r-md); text-decoration: none; border: 1px solid transparent; cursor: pointer; }
+  .btn-primary { background: var(--primary); color: var(--on-primary); }
+  .btn-primary:active { background: var(--primary-active); }
+  .btn-secondary { background: var(--canvas); color: var(--ink); border-color: var(--hairline); }
+  .btn-cream { background: var(--canvas); color: var(--ink); }        /* on coral surface */
+  .btn-on-dark { background: var(--dark-elevated); color: var(--on-dark); }
+  .tlink { color: var(--primary); text-decoration: none; font-weight: 500; }
+  .tlink:hover { text-decoration: underline; }
 
-  /* ---------- Cards ---------- */
-  .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; transition: transform .15s ease, box-shadow .15s ease; }
-  .card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(15,23,42,.10); }
-  .card .ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; margin-bottom: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
-  .card .ic svg { width: 21px; height: 21px; stroke: #052e2b; stroke-width: 2; fill: none; }
-  .card h3 { margin: 0 0 6px; font-size: 16.5px; }
-  .card p { margin: 0; color: var(--soft); font-size: 14.5px; }
+  /* ---- top nav ---- */
+  header.nav { position: sticky; top: 0; z-index: 30; background: var(--canvas);
+    border-bottom: 1px solid var(--hairline-soft); }
+  .nav-row { height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--sans);
+    font-weight: 600; font-size: 16px; color: var(--ink); letter-spacing: -.2px; }
+  .spike { width: 20px; height: 20px; color: var(--ink); flex: none; }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { font-size: 14px; font-weight: 500; color: var(--ink); text-decoration: none; }
+  .nav-links a:hover { color: var(--primary); }
+  .nav-right { display: flex; align-items: center; gap: 18px; }
 
-  /* ---------- Tools row ---------- */
+  /* ---- badges ---- */
+  .badge-coral { display: inline-flex; align-items: center; gap: 7px; background: var(--primary);
+    color: var(--on-primary); font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 5px 12px; border-radius: var(--r-pill); }
+  .badge-pill { display: inline-flex; align-items: center; gap: 7px; background: var(--surface-card);
+    color: var(--ink); font-size: 13px; font-weight: 500; padding: 5px 13px; border-radius: var(--r-pill); }
+
+  /* ---- sections ---- */
+  section { padding: var(--section) 0; }
+  section.band-soft { background: var(--surface-soft); border-top: 1px solid var(--hairline-soft); border-bottom: 1px solid var(--hairline-soft); }
+
+  /* ---- hero ---- */
+  .hero { padding: 84px 0 var(--section); }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+  .hero h1 { margin: 18px 0 20px; }
+  .hero .lead { margin-bottom: 30px; }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 34px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 30px; }
+  .stat b { font-family: var(--serif); font-weight: 500; font-size: 34px; color: var(--ink); letter-spacing: -.5px; display: block; line-height: 1; }
+  .stat span { font-size: 13px; color: var(--muted); }
+
+  /* ---- code-window card (dark product surface) ---- */
+  .code-card { background: var(--dark); border-radius: var(--r-xl); overflow: hidden; }
+  .code-bar { display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .code-bar .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .code-bar .fname { margin-left: 10px; font-family: var(--mono); font-size: 12.5px; color: var(--on-dark-soft); }
+  .code-body { background: var(--dark-soft); margin: 18px; border-radius: var(--r-lg); padding: 18px 20px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.7; overflow-x: auto; }
+  .code-body pre { margin: 0; white-space: pre; color: var(--on-dark); }
+  .cl { color: var(--muted-soft); }      /* comment / dim */
+  .ck { color: var(--amber); }           /* key */
+  .cs { color: var(--teal); }            /* string / path */
+  .cc { color: var(--primary); }         /* coral highlight */
+  .code-foot { padding: 0 18px 18px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--on-dark-soft); font-family: var(--sans); }
+  .code-foot .live { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+  /* ---- tool pills ---- */
   .tools { display: flex; flex-wrap: wrap; gap: 12px; }
-  .tool { display: inline-flex; align-items: center; gap: 9px; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px; font-weight: 600; font-size: 14px; }
-  .tool .d { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-  .tool small { color: var(--soft); font-weight: 500; }
+  .tool { display: inline-flex; align-items: center; gap: 9px; background: var(--canvas);
+    border: 1px solid var(--hairline); border-radius: var(--r-pill); padding: 10px 16px; font-size: 14px; font-weight: 500; color: var(--ink); }
+  .tool .d { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); }
+  .tool small { color: var(--muted); font-weight: 400; }
 
-  /* ---------- Case study before/after ---------- */
-  .ba { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
-  .ba .col { border-radius: 14px; padding: 22px; border: 1px solid var(--line); }
-  .ba .before { background: #fff; }
-  .ba .after { background: linear-gradient(135deg, rgba(20,184,166,.10), rgba(34,211,238,.10)); border-color: rgba(20,184,166,.35); }
-  .ba .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; margin-bottom: 12px; }
-  .ba .before .tag { background: #fef2f2; color: #b91c1c; }
-  .ba .after .tag { background: rgba(16,185,129,.15); color: #047857; }
-  .ba p { margin: 0 0 8px; font-size: 14.5px; color: var(--soft); }
-  .ba code { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; background: rgba(15,23,42,.06); padding: 2px 7px; border-radius: 6px; font-size: 13px; color: var(--ink); }
+  /* ---- feature cards ---- */
+  .grid3 { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .fcard { background: var(--surface-card); border-radius: var(--r-lg); padding: 32px; }
+  .fcard .ic { width: 40px; height: 40px; border-radius: var(--r-md); display: grid; place-items: center;
+    background: var(--canvas); border: 1px solid var(--hairline); margin-bottom: 18px; }
+  .fcard .ic svg { width: 20px; height: 20px; stroke: var(--ink); stroke-width: 1.75; fill: none; }
+  .fcard h3 { font-family: var(--sans); font-weight: 600; font-size: 18px; color: var(--ink); margin: 0 0 8px; letter-spacing: -.2px; }
+  .fcard p { color: var(--body); font-size: 15px; margin: 0; }
 
-  /* ---------- Steps ---------- */
-  .steps { counter-reset: s; list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
-  .steps li { position: relative; padding: 16px 18px 16px 62px; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
-  .steps li:before { counter-increment: s; content: counter(s); position: absolute; left: 16px; top: 16px; width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #052e2b; display: grid; place-items: center; font-weight: 800; }
-  .steps li b { display: block; font-size: 15.5px; margin-bottom: 2px; }
-  .steps li span { color: var(--soft); font-size: 14px; }
+  /* ---- case study before/after ---- */
+  .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: stretch; }
+  .before { background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-lg); padding: 32px; }
+  .tag { display: inline-block; font-family: var(--sans); font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 4px 11px; border-radius: var(--r-pill); margin-bottom: 16px; }
+  .tag.was { background: #f3e2dd; color: #c64545; }
+  .tag.now { background: rgba(93,184,166,.16); color: #2f7d6e; }
+  .before p { color: var(--body); font-size: 15px; }
+  .after-card { padding: 26px; display: flex; flex-direction: column; }
+  .after-card .tag.now { background: rgba(93,184,166,.16); color: var(--teal); }
+  .after-card p { color: var(--on-dark-soft); font-size: 14.5px; }
+  .after-card .cmd { background: var(--dark-soft); border-radius: var(--r-md); padding: 12px 14px; margin: 4px 0 14px;
+    font-family: var(--mono); font-size: 13px; color: var(--on-dark); }
+  .after-card .cmd .cc { color: var(--primary); }
 
-  /* ---------- Match list (job tasks) ---------- */
-  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
-  .chip { font-size: 13.5px; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 13px; display: inline-flex; align-items: center; gap: 8px; }
-  .chip svg { width: 15px; height: 15px; stroke: var(--ok); stroke-width: 2.4; fill: none; }
+  /* ---- steps ---- */
+  .steps { list-style: none; counter-reset: s; margin: 0 0 26px; padding: 0; display: grid; gap: 14px; }
+  .steps li { position: relative; padding: 20px 24px 20px 64px; background: var(--canvas);
+    border: 1px solid var(--hairline); border-radius: var(--r-lg); }
+  .steps li:before { counter-increment: s; content: counter(s); position: absolute; left: 22px; top: 20px;
+    width: 30px; height: 30px; border-radius: var(--r-pill); background: var(--surface-cream-strong);
+    color: var(--ink); display: grid; place-items: center; font-family: var(--serif); font-weight: 600; font-size: 16px; }
+  .steps li b { display: block; font-family: var(--sans); font-weight: 600; color: var(--ink); font-size: 16px; margin-bottom: 3px; letter-spacing: -.1px; }
+  .steps li span { color: var(--body); font-size: 14.5px; }
 
-  /* ---------- Footer ---------- */
-  footer { background: #0b1220; color: #cbd5e1; padding: 54px 0 40px; }
-  footer .big { color: #fff; font-size: clamp(18px, 3vw, 24px); font-weight: 700; letter-spacing: -.01em; margin: 0 0 12px; }
-  footer p { color: #93a4bb; max-width: 66ch; margin: 0 0 8px; font-size: 14.5px; }
-  .meta-note { margin-top: 26px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1); font-size: 12.5px; color: #6b7c93; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; background: var(--canvas);
+    border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 9px 14px; font-size: 14px; color: var(--ink); }
+  .chip svg { width: 15px; height: 15px; stroke: var(--success); stroke-width: 2.4; fill: none; }
 
+  /* ---- coral CTA band ---- */
+  .cta { background: var(--primary); color: var(--on-primary); border-radius: var(--r-lg); padding: 64px; }
+  .cta h2 { color: var(--on-primary); margin-bottom: 14px; }
+  .cta p { color: rgba(255,255,255,.9); font-size: 16px; max-width: 66ch; }
+  .cta .btn-row { margin: 26px 0 0; }
+
+  /* ---- footer (dark, never inverts) ---- */
+  footer { background: var(--dark); color: var(--on-dark-soft); padding: 64px 0 48px; }
+  footer .brand { color: var(--on-dark); }
+  footer .spike { color: var(--on-dark); }
+  footer p { color: var(--on-dark-soft); font-size: 14px; max-width: 70ch; margin: 18px 0 0; }
+  footer .fine { margin-top: 30px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.09); font-size: 12.5px; color: #6b6862; }
+
+  @media (max-width: 860px) {
+    :root { --section: 64px; }
+    .hero-grid, .ba { grid-template-columns: 1fr; }
+    .hero-grid { gap: 40px; }
+    .hero { padding: 56px 0 var(--section); }
+  }
   @media (max-width: 640px) {
     .nav-links { display: none; }
-    .ba { grid-template-columns: 1fr; }
-    section.block { padding: 48px 0; }
-    .hero { padding: 54px 0 60px; }
+    .cta { padding: 40px 28px; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="wrap nav">
-    <div class="brand"><span class="dot"></span> AI-First Developer</div>
+<!-- ============ TOP NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-row">
+    <div class="brand">
+      <svg class="spike" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5l1.7 6.9 5-5-3.5 6.4 6.9-1.7-6.9 1.7 3.5 6.4-5-5L12 22.5l-1.7-6.9-5 5 3.5-6.4L2.9 15.9l6.9-1.7-3.5-6.4 5 5z"/></svg>
+      AI-First Developer
+    </div>
     <nav class="nav-links">
       <a href="#workflow">Workflow</a>
       <a href="#case">Case study</a>
       <a href="#fit">Your tasks</a>
       <a href="#ship">Ship &amp; deploy</a>
     </nav>
+    <div class="nav-right">
+      <a class="tlink" href="#cta">Live sample</a>
+      <a class="btn btn-primary" href="#cta">Ready for the trial</a>
+    </div>
   </div>
 </header>
 
-<!-- ================= HERO ================= -->
+<!-- ============ HERO ============ -->
 <section class="hero">
-  <div class="wrap">
-    <span class="eyebrow">AI-First Web Development</span>
-    <h1>I ship clean, tested HTML -<br><span class="grad">the AI-first way.</span></h1>
-    <p class="lead">I pair solid HTML, CSS and JavaScript with a heavily-tuned AI workflow to analyse, modify and improve existing websites <em>fast</em> - matching the current design, testing in a real browser, and reviewing every change by hand before it ships.</p>
-    <div class="stats">
-      <div class="stat"><b>~85-90%</b><span>of code produced with AI</span></div>
-      <div class="stat"><b>~40%</b><span>less setup / re-prompting</span></div>
-      <div class="stat"><b>100%</b><span>human-reviewed before ship</span></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="badge-coral">AI-First Web Development</span>
+      <h1 class="d-xl">I ship clean, tested HTML the AI-first way.</h1>
+      <p class="lead">I pair solid HTML, CSS and JavaScript with a heavily-tuned AI workflow to analyse, modify and improve existing websites fast, matching the current design, testing in a real browser, and reviewing every change by hand before it ships.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="#workflow">See the workflow</a>
+        <a class="btn btn-secondary" href="#case">Read a case study</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>~85-90%</b><span>of code produced with AI</span></div>
+        <div class="stat"><b>~40%</b><span>less setup / re-prompting</span></div>
+        <div class="stat"><b>100%</b><span>human-reviewed before ship</span></div>
+      </div>
+    </div>
+    <div class="code-card">
+      <div class="code-bar">
+        <span class="dot" style="background:#e05c4a"></span>
+        <span class="dot" style="background:#e8a55a"></span>
+        <span class="dot" style="background:#5db872"></span>
+        <span class="fname">CLAUDE.md</span>
+      </div>
+      <div class="code-body"><pre><span class="cl"># hscode-match</span>
+<span class="cl"># Backend conventions + deploy rules</span>
+
+<span class="ck">## Related repo context</span>
+<span class="cc">@</span><span class="cs">/Projects/api/CLAUDE.md</span>
+<span class="cc">@</span><span class="cs">/Projects/chatscopeai-v2/CLAUDE.md</span>
+<span class="cc">@</span><span class="cs">/Projects/agentic-crawler/CLAUDE.md</span>
+
+<span class="cl"># open any repo -&gt; the AI already knows</span>
+<span class="cl"># the stack, the house style, the rules.</span></pre></div>
+      <div class="code-foot"><span class="live"></span> Context loads itself. No blank-slate prompts.</div>
     </div>
   </div>
 </section>
 
-<!-- ================= TOOLS ================= -->
-<section class="block">
+<!-- ============ TOOLS ============ -->
+<section>
   <div class="wrap">
     <p class="kicker">Daily toolkit</p>
-    <h2 class="title">The tools I actually use every day</h2>
-    <div class="rule"></div>
-    <p class="intro">AI isn't a novelty I reach for occasionally - it's the centre of how I work. These are the tools open on my machine on any given day.</p>
+    <h2 class="d-md">The tools I actually use every day</h2>
+    <p class="intro">AI is not a novelty I reach for occasionally. It is the centre of how I work. These are the tools open on my machine on any given day.</p>
     <div class="tools">
       <span class="tool"><span class="d"></span> Claude Code <small>primary driver</small></span>
       <span class="tool"><span class="d"></span> ChatGPT <small>reasoning &amp; copy</small></span>
@@ -170,83 +275,81 @@
   </div>
 </section>
 
-<!-- ================= WORKFLOW ================= -->
-<section class="block alt" id="workflow">
+<!-- ============ WORKFLOW ============ -->
+<section class="band-soft" id="workflow">
   <div class="wrap">
     <p class="kicker">How I work</p>
-    <h2 class="title">A workflow built so AI never starts from a blank slate</h2>
-    <div class="rule"></div>
-    <p class="intro">Anyone can paste code into a chatbot. The speed comes from the scaffolding around it - so the AI already knows the stack, the conventions and the house style before I type a word.</p>
-    <div class="grid">
-      <div class="card">
+    <h2 class="d-md">A workflow built so AI never starts from a blank slate</h2>
+    <p class="intro">Anyone can paste code into a chatbot. The speed comes from the scaffolding around it, so the AI already knows the stack, the conventions and the house style before I type a word.</p>
+    <div class="grid3">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
         <h3>Context that loads itself</h3>
-        <p>Every project carries an instruction file describing its stack, conventions and deploy rules - and these files reference each other, so opening any repo instantly loads how my projects are built. No re-explaining each session.</p>
+        <p>Every project carries an instruction file describing its stack, conventions and deploy rules, and these files reference each other, so opening any repo instantly loads how my projects are built. No re-explaining each session.</p>
       </div>
-      <div class="card">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
         <h3>Analyse before I touch</h3>
-        <p>First step on any handover is having the AI map the existing structure and CSS patterns, so new pages match what's already there instead of fighting it.</p>
+        <p>First step on any handover is having the AI map the existing structure and CSS patterns, so new pages match what is already there instead of fighting it.</p>
       </div>
-      <div class="card">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
         <h3>Verified in a real browser</h3>
-        <p>Changes get opened in an actual browser, resized to phone and desktop widths, checked for a clean console and working links, and screenshotted - before I even review them.</p>
+        <p>Changes get opened in an actual browser, resized to phone and desktop widths, checked for a clean console and working links, and screenshotted, before I even review them.</p>
       </div>
-      <div class="card">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M6 3v12M6 15a3 3 0 100 6 3 3 0 000-6zM18 9a3 3 0 100-6 3 3 0 000 6zM18 6c0 6-12 3-12 9"/></svg></div>
         <h3>Parallel by default</h3>
         <p>Independent tasks run side by side in isolated git worktrees, so one job never blocks another and nothing steps on the main branch.</p>
       </div>
-      <div class="card">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
         <h3>The human owns quality</h3>
-        <p>AI does the mechanical work; I read the final diff, sanity-check the result against the spec and the existing design, and only ship once it's clean.</p>
+        <p>AI does the mechanical work; I read the final diff, sanity-check the result against the spec and the existing design, and only ship once it is clean.</p>
       </div>
-      <div class="card">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l7 4v6c0 4-3 6-7 8-4-2-7-4-7-8V7z"/></svg></div>
         <h3>Prompts written for reuse</h3>
-        <p>Repeatable jobs become a documented framework the AI follows on request - so the same class of task is fast and consistent every time, not reinvented.</p>
+        <p>Repeatable jobs become a documented framework the AI follows on request, so the same class of task is fast and consistent every time, not reinvented.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= CASE STUDY ================= -->
-<section class="block" id="case">
+<!-- ============ CASE STUDY (cream before + dark after) ============ -->
+<section id="case">
   <div class="wrap">
     <p class="kicker">Where it paid off</p>
-    <h2 class="title">From bespoke scripts to a one-line request</h2>
-    <div class="rule"></div>
-    <p class="intro">On a data platform I work on, new data sources are onboarded constantly - and every source has its own page structure that can change without warning. I fixed the process instead of the symptom.</p>
+    <h2 class="d-md">From bespoke scripts to a one-line request</h2>
+    <p class="intro">On a data platform I work on, new data sources are onboarded constantly, and every source has its own page structure that can change without warning. I fixed the process instead of the symptom.</p>
     <div class="ba">
-      <div class="col before">
-        <span class="tag">Before</span>
+      <div class="before">
+        <span class="tag was">Before</span>
         <p>A brand-new scraper hand-written for every new source, and rewritten whenever a source changed its structure.</p>
         <p>Slow, repetitive, error-prone, and every one slightly different from the last.</p>
       </div>
-      <div class="col after">
-        <span class="tag">After</span>
-        <p>One crawler framework plus conventions, documented so the AI follows it end to end. Now the task is simply: <code>build the crawler for source X</code>.</p>
-        <p>My role dropped to validating the final structured output against the live source - hours of scripting became minutes of review, and every source is consistent.</p>
+      <div class="code-card after-card">
+        <span class="tag now">After</span>
+        <p style="margin-bottom:14px">One crawler framework plus conventions, documented so the AI follows it end to end. Now the task is simply:</p>
+        <div class="cmd"><span class="cc">$</span> build the crawler for <span class="cc">source X</span></div>
+        <p style="margin:0">My role dropped to validating the final structured output against the live source. Hours of scripting became minutes of review, and every source is consistent.</p>
       </div>
     </div>
-    <p class="intro" style="margin-top:26px;margin-bottom:0">That's the pattern I bring to any codebase: <b style="color:var(--ink)">turn the repetitive part into something the AI can do reliably, and keep the human on judgement.</b></p>
+    <p class="intro" style="margin:36px 0 0"><span style="color:var(--ink)">The pattern I bring to any codebase: turn the repetitive part into something the AI can do reliably, and keep the human on judgement.</span></p>
   </div>
 </section>
 
-<!-- ================= FIT / YOUR TASKS ================= -->
-<section class="block alt" id="fit">
+<!-- ============ YOUR TASKS ============ -->
+<section class="band-soft" id="fit">
   <div class="wrap">
     <p class="kicker">Made for this kind of work</p>
-    <h2 class="title">How I'd handle your maintenance tasks</h2>
-    <div class="rule"></div>
-    <p class="intro">Static marketing sites, a clear spec, existing files in - clean, tested code out. That handover loop is exactly what my workflow is tuned for.</p>
+    <h2 class="d-md">How I would handle your maintenance tasks</h2>
+    <p class="intro">Static marketing sites, a clear spec, existing files in, clean tested code out. That handover loop is exactly what my workflow is tuned for.</p>
     <ol class="steps">
       <li><b>Understand the project</b><span>Have the AI map structure, styles and how pages are wired, so changes match the existing design rather than clashing with it.</span></li>
-      <li><b>Make the change, AI-accelerated</b><span>New service pages, blog/article pages, FAQs, nav and layout updates, metadata and internal linking - generated fast, then tightened to match the site's own patterns.</span></li>
+      <li><b>Make the change, AI-accelerated</b><span>New service pages, blog and article pages, FAQs, nav and layout updates, metadata and internal linking, generated fast, then tightened to match the site's own patterns.</span></li>
       <li><b>Test thoroughly</b><span>Real-browser check across mobile and desktop, responsive fixes, console clean, links and layout verified.</span></li>
-      <li><b>Ship production-ready</b><span>Clean commit, a short note on what changed and how each item was verified - ready to deploy.</span></li>
+      <li><b>Ship production-ready</b><span>Clean commit, a short note on what changed and how each item was verified, ready to deploy.</span></li>
     </ol>
     <div class="chips">
       <span class="chip"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> New service pages</span>
@@ -261,41 +364,54 @@
   </div>
 </section>
 
-<!-- ================= SHIP / DEPLOY ================= -->
-<section class="block" id="ship">
+<!-- ============ SHIP & DEPLOY ============ -->
+<section id="ship">
   <div class="wrap">
     <p class="kicker">Ship &amp; deploy</p>
-    <h2 class="title">Git-based, push-to-deploy, kept in lockstep</h2>
-    <div class="rule"></div>
-    <p class="intro">All my work is Git-backed - feature branches, clean readable commits, worktrees for parallel tasks, and the full review-and-merge flow.</p>
-    <div class="grid">
-      <div class="card">
+    <h2 class="d-md">Git-based, push-to-deploy, kept in lockstep</h2>
+    <p class="intro">All my work is Git-backed: feature branches, clean readable commits, worktrees for parallel tasks, and the full review-and-merge flow.</p>
+    <div class="grid3">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="9" r="3"/><path d="M6 9v6M18 12c0 3-6 3-6 6"/></svg></div>
         <h3>GitHub, daily</h3>
-        <p>Branches, worktrees, disciplined commits and reviews. This very page is a GitHub Pages deploy - pushed to main, live in minutes.</p>
+        <p>Branches, worktrees, disciplined commits and reviews. This very page is a GitHub Pages deploy, pushed to main, live in minutes.</p>
       </div>
-      <div class="card">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l9 16H3z"/></svg></div>
         <h3>Push-to-deploy hosting</h3>
-        <p>I ship static sites the Git-connected way - connect repo, push to main, auto build-and-deploy, preview deploys, custom domains. The same model Cloudflare Pages and Netlify use, so I'm productive on either from day one.</p>
+        <p>I ship static sites the Git-connected way: connect repo, push to main, auto build-and-deploy, preview deploys, custom domains. The same model Cloudflare Pages and Netlify use, so I am productive on either from day one.</p>
       </div>
-      <div class="card">
+      <div class="fcard">
         <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/></svg></div>
         <h3>Hands-on server ops</h3>
-        <p>I also run production VPS servers day to day - deploying services, checking logs, restarting cleanly, keeping running state in sync with the repo. Comfortable when a project needs more than static hosting.</p>
+        <p>I also run production VPS servers day to day: deploying services, checking logs, restarting cleanly, keeping running state in sync with the repo. Comfortable when a project needs more than static hosting.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= FOOTER ================= -->
+<!-- ============ CORAL CTA ============ -->
+<section id="cta">
+  <div class="wrap">
+    <div class="cta">
+      <h2 class="d-sm">Ready for the paid trial.</h2>
+      <p>Send the site and the maintenance tasks and I will return clean, tested, production-ready code, with a short note on what changed and how each item was verified. Speed, quality and clear communication, in that spirit.</p>
+      <div class="btn-row">
+        <a class="btn btn-cream" href="#workflow">See how I work</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
 <footer>
   <div class="wrap">
-    <p class="big">Ready for the paid trial.</p>
-    <p>Send the site and the maintenance tasks and I'll return clean, tested, production-ready code - with a short note on what changed and how each item was verified. Speed, quality and clear communication, in that spirit.</p>
-    <div class="meta-note">
-      About this page: hand-built as a single HTML file - no framework, no build step, fully responsive - and deployed to GitHub Pages by pushing to main. It's both a summary of how I work and a live sample of the static HTML I ship.
+    <div class="brand">
+      <svg class="spike" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5l1.7 6.9 5-5-3.5 6.4 6.9-1.7-6.9 1.7 3.5 6.4-5-5L12 22.5l-1.7-6.9-5 5 3.5-6.4L2.9 15.9l6.9-1.7-3.5-6.4 5 5z"/></svg>
+      AI-First Developer
     </div>
+    <p>About this page: hand-built as a single HTML file, no framework, no build step, fully responsive, and deployed to GitHub Pages by pushing to main. It is both a summary of how I work and a live sample of the static HTML I ship.</p>
+    <div class="fine">Styled after a warm cream-and-coral editorial system. Copernicus / StyreneB stand in as Cormorant Garamond / Inter web fonts.</div>
   </div>
 </footer>
 
